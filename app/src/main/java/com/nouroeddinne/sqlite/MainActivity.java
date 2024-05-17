@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 }else {
 
                     int id = Integer.parseInt(editText_search.getText().toString());
-                    Person person = db.getPerson(id);
+                    Person person = db.getPersonById(id);
                     if (person!=null){
                         textView_show_id.setText(String.valueOf(person.getId()));
                         textView_show_name.setText(String.valueOf(person.getName()));

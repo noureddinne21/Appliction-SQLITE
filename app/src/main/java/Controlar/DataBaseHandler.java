@@ -53,7 +53,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
 
 
-    public Person getPerson(int id){
+    public Person getPersonById(int id){
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.query(Utels.TABLE_NAME,
                 new String[]{Utels.KEY_ID, Utels.KEY_NAME, Utels.KEY_ADDRESS, Utels.KEY_AGE}, Utels.KEY_ID+"=?",
