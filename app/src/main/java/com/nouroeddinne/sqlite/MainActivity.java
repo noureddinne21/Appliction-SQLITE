@@ -1,8 +1,8 @@
 package com.nouroeddinne.sqlite;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,13 +27,14 @@ import Model.Person;
 public class MainActivity extends AppCompatActivity {
 
     LinearLayout linear_get,linear_add,linear_getAll;
-    Button button_add,button_get,button_getAll,button_show_one_person,button_set_one_person;
-    EditText editText_search,editText_set_name,editText_set_age,editText_set_address;
-    TextView textView_show_id,textView_show_name,textView_show_age,textView_show_address;
+    Button button_add,button_get,button_getAll,button_show_one_person_by_id,button_show_one_person_by_name,button_set_one_person;
+    EditText editText_search_by_id,editText_search_by_name,editText_set_name,editText_set_age,editText_set_address;
+    TextView textView_show_id,textView_show_name,textView_show_age,textView_show_address,textView_number_of_person;
     private RecyclerView recyclerView;
     private List<Person> personList;
     private RecyclerView.Adapter adapter;
     DataBaseHandler db ;
+    Context context= this;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +52,12 @@ public class MainActivity extends AppCompatActivity {
         button_add = findViewById(R.id.button_add);
         button_get = findViewById(R.id.button_get);
         button_getAll = findViewById(R.id.buttongetAll);
-        button_show_one_person = findViewById(R.id.button_show_one_person);
+        button_show_one_person_by_id = findViewById(R.id.button_update_person);
+        button_show_one_person_by_name = findViewById(R.id.button_show_one_person_by_name);
         button_set_one_person = findViewById(R.id.button_set_new_person);
 
-        editText_search = findViewById(R.id.editText_search);
+        editText_search_by_id = findViewById(R.id.editText_updateage);
+        editText_search_by_name = findViewById(R.id.editText_search_by_name);
         editText_set_name = findViewById(R.id.editText_set_name);
         editText_set_age = findViewById(R.id.editText_set_age);
         editText_set_address = findViewById(R.id.editText_set_address);
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         textView_show_name = findViewById(R.id.textView_show_name);
         textView_show_age = findViewById(R.id.textView_show_age);
         textView_show_address = findViewById(R.id.textView_show_address);
+        textView_number_of_person = findViewById(R.id.textView_number_of_person);
 
         linear_get = findViewById(R.id.linear_get);
         linear_add = findViewById(R.id.linear_add);
@@ -72,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        personList = db.getAllPersons();
-        this.adapter = new MyAdapter(this,personList);
-        this.recyclerView.setAdapter(adapter);
 
 
 
@@ -116,16 +117,21 @@ public class MainActivity extends AppCompatActivity {
                 linear_get.setVisibility(View.GONE);
                 linear_getAll.setVisibility(View.VISIBLE);
                 linear_add.setVisibility(View.GONE);
+
+                textView_number_of_person.setText(String.valueOf(db.NumPerson()));
+                personList = db.getAllPersons();
+                adapter = new MyAdapter(context,personList);
+                recyclerView.setAdapter(adapter);
             }
         });
 
-        button_show_one_person.setOnClickListener(new View.OnClickListener() {
+        button_show_one_person_by_id.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (editText_search.getText().toString().isEmpty()){
-                    editText_search.setError("Enter ID Search");
+                if (editText_search_by_id.getText().toString().isEmpty()){
+                    editText_search_by_id.setError("Enter ID Search");
                 }else {
-                    int id = Integer.parseInt(editText_search.getText().toString());
+                    int id = Integer.parseInt(editText_search_by_id.getText().toString());
                     Person person = db.getPersonById(id);
                     if (person!=null){
                         textView_show_id.setText(String.valueOf(person.getId()));
@@ -139,6 +145,32 @@ public class MainActivity extends AppCompatActivity {
                         textView_show_address.setText("null");
                     }
                 }
+                editText_search_by_id.setText("");
+            }
+        });
+
+
+        button_show_one_person_by_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editText_search_by_name.getText().toString().isEmpty()){
+                    editText_search_by_name.setError("Enter ID Search");
+                }else {
+                    String Name = editText_search_by_name.getText().toString();
+                    Person person = db.getPersonByName(Name);
+                    if (person!=null){
+                        textView_show_id.setText(String.valueOf(person.getId()));
+                        textView_show_name.setText(String.valueOf(person.getName()));
+                        textView_show_age.setText(String.valueOf(person.getAge()));
+                        textView_show_address.setText(String.valueOf(person.getAddress()));
+                    }else {
+                        textView_show_id.setText("Person not found for ID: "+Name);
+                        textView_show_name.setText("null");
+                        textView_show_age.setText("null");
+                        textView_show_address.setText("null");
+                    }
+                }
+                editText_search_by_name.setText("");
             }
         });
 
@@ -159,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                             editText_set_name.setText("");
                             editText_set_address.setText("");
                             editText_set_age.setText("");
-                            Toast.makeText(MainActivity.this, "Add Sucsess", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Add Sucsess ", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -167,21 +199,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
-
-//        db.addPerson(new Person("nouro","SK21",22));
-//        db.addPerson(new Person("NOki","batna",12));
-//        db.addPerson(new Person("LOLO","usa",24));
-//        db.addPerson(new Person("mohamed","uk",32));
-//        db.addPerson(new Person("java","doubai",44));
-
-
-//        List<Person> personList = db.getAllPersons();
-//        for (Person p : personList){
-//            String allData = "ID : "+p.getId()+" Name : "+p.getName()+" Address : "+p.getAddress()+" Age :"+p.getAge();
-//            Log.d("allPerson", allData);
-//        }
 
 
 
@@ -201,4 +218,41 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        textView_number_of_person.setText(String.valueOf(db.NumPerson()));
+        personList = db.getAllPersons();
+        adapter = new MyAdapter(context,personList);
+        recyclerView.setAdapter(adapter);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

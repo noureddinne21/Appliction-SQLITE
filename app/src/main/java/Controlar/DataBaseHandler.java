@@ -101,6 +101,68 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
 
 
+    public Person getPersonByName(String Name){
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.query(Utels.TABLE_NAME,
+                new String[]{Utels.KEY_ID, Utels.KEY_NAME, Utels.KEY_ADDRESS, Utels.KEY_AGE}, Utels.KEY_NAME+"=?",
+                new String[]{Name},
+                null,null,null,null);
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            Person person = new Person(
+                    Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    Integer.parseInt(cursor.getString(3)));
+            cursor.close(); // Close cursor when done with it
+            return person;
+        }
+        // Close cursor even if it's null
+        if (cursor != null) {
+            cursor.close();
+        }
+        return null; // Return null if person not found
+    }
+
+
+    public int updatePerson(Person person){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Utels.KEY_NAME, person.getName());
+        contentValues.put(Utels.KEY_ADDRESS, person.getAddress());
+        contentValues.put(Utels.KEY_AGE, String.valueOf(person.getAge()));
+        int result = sqLiteDatabase.update(Utels.TABLE_NAME,contentValues,Utels.KEY_ID+"=?",new String[]{String.valueOf(person.getId())});
+        sqLiteDatabase.close();
+        return result;
+    }
+
+
+    public int deletePerson(Person person){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        int result = sqLiteDatabase.delete(Utels.TABLE_NAME,Utels.KEY_ID+"=?",new String[]{String.valueOf(person.getId())});
+        sqLiteDatabase.close();
+        return result;
+    }
+
+
+    public int NumPerson(){
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        String getAll = "SELECT * FROM "+Utels.TABLE_NAME;
+        Cursor cursor = sqLiteDatabase.rawQuery(getAll,null);
+        return cursor.getCount();
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -109,3 +171,4 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
 
 }
+
